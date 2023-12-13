@@ -51,7 +51,12 @@ bool WebsocketConnect::handshake()
     response.setStatusCode(101);
     response.setHeader("Upgrade", "websocket");
     response.setHeader("Connection", "Upgrade");
-    // response.setHeader("Sec-WebSocket-Accept",base64_encode(sha1(this->sec_websocket_key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11")));
+
+    SHA1 sha1;
+    sha1 << this->sec_websocket_key.data();
+    sha1 << WEBSOCKET_GUID;
+    sha1.Result(nullptr);
+    response.setHeader("Sec-WebSocket-Accept", base64_encode(sha1.GetDigestString()));
     this->is_handshake = true;
     return true;
 }

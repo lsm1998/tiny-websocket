@@ -9,6 +9,7 @@
 #include "http_request.hpp"
 #include "http_response.hpp"
 #include "sha1.hpp"
+#include "base64.hpp"
 
 constexpr char *WEBSOCKET_GUID = (char *) "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
