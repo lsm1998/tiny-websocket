@@ -9,6 +9,9 @@
 #include <map>
 #include <unistd.h>
 #include <fcntl.h>
+#include <vector>
+#include <sstream>
+#include <cstring>
 
 constexpr int MAX_BUF_SIZE = 1024 * 4;
 

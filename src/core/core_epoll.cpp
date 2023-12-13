@@ -41,7 +41,7 @@ public:
                 this->connExit(&events[i], handler);
                 continue;
             }
-            if (events[i].data.fd == this->epoll_fd)  // 连接加入
+            if (events[i].data.fd == this->socket_fd)  // 连接加入
             {
                 struct sockaddr_in client_addr{};
                 socklen_t client;
