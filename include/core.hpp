@@ -6,9 +6,14 @@
 #define TINY_WEBSOCKET_CORE_H
 
 #include <netinet/in.h>
+#include <cstring>
+#include <arpa/inet.h>
 #include <functional>
-#include "websocket_conn.hpp"
+#include "websocket_connect.hpp"
 #include "global.hpp"
+#include "tcp_net_util.h"
+#include "event.hpp"
+#include "websocket_handler.hpp"
 
 constexpr char *DEFAULT_HOST = (char *) "127.0.0.1";
 constexpr int DEFAULT_PORT = 8080;
@@ -47,7 +52,7 @@ public:
 
     void run();
 
-    void handle(const std::string &path, const std::function<void(WebsocketConn &)>& function);
+    void handle(const std::string &path, WebsocketHandler *handler);
 
 private:
     void setServerAddr();
@@ -56,7 +61,7 @@ private:
 
     void listen() const;
 
-    void accept() const;
+    void accept();
 
 private:
     std::string host;
@@ -66,10 +71,10 @@ private:
     bool reuseaddr;
     int fd;
     struct sockaddr_in server_addr{};
-    bool loop{true};
+    volatile bool loop{true};
     std::string path{};
-    std::function<void(WebsocketConn &)> function;
+    WebsocketHandler *handler;
+    EventHandler *eventHandler;
 };
-
 
 #endif //TINY_WEBSOCKET_CORE_H

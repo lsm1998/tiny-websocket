@@ -7,6 +7,8 @@
 
 #include <iostream>
 #include <map>
+#include <unistd.h>
+#include <fcntl.h>
 
 constexpr int MAX_BUF_SIZE = 1024 * 4;
 
@@ -21,5 +23,13 @@ constexpr const char *BLANK = " ";
 constexpr const char *SEPARATOR = "\r\n";
 
 constexpr const char *COLON = ":";
+
+#ifdef __linux__
+#define LINUX 1
+#elif __APPLE__
+#define MACOS 1
+#else
+#define WINDOWS 1
+#endif
 
 #endif //TINY_WEBSOCKET_GLOBAL_HPP
