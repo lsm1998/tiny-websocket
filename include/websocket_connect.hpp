@@ -8,6 +8,7 @@
 #include "global.hpp"
 #include "http_request.hpp"
 #include "http_response.hpp"
+#include "sha1.hpp"
 
 constexpr char *WEBSOCKET_GUID = (char *) "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
@@ -29,19 +30,22 @@ public:
     virtual size_t recvMessage(MessageType type, char *buf, size_t len) = 0;
 
     virtual ~WebsocketConn() = default;
+
+    virtual std::string connId() = 0;
 };
 
 class WebsocketConnect : public WebsocketConn
 {
 public:
-    explicit WebsocketConnect(int fd) : fd(fd)
-    {}
+    explicit WebsocketConnect(int fd);
 
     ~WebsocketConnect() override = default;
 
     size_t sendMessage(MessageType type, char *buf, size_t len) override;
 
     size_t recvMessage(MessageType type, char *buf, size_t len) override;
+
+    std::string connId() override;
 
 private:
     void checkHandshake();
@@ -56,6 +60,8 @@ private:
     std::string sec_websocket_key;
 
     std::string sec_webSocket_extensions;
+
+    std::string conn_id;
 };
 
 #endif //TINY_WEBSOCKET_WEBSOCKET_CONNECT_H

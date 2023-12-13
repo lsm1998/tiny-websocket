@@ -29,8 +29,8 @@ TEST(StringUtilTest_sha1, PositiveInput)
     SHA1 sha1;
     sha1
             << "风急天高猿啸哀，渚清沙白鸟飞回。无边落木萧萧下，不尽长江滚滚来。万里悲秋常作客，百年多病独登台。艰难苦恨繁霜鬓，潦倒新停浊酒杯。";
-    unsigned message_digest_array[5];
-    sha1.Result(message_digest_array);
+    //unsigned message_digest_array[5];
+    sha1.Result(nullptr);
 
     auto str = sha1.GetDigestString();
     std::transform(str.begin(),str.end(),str.begin(),::toupper);

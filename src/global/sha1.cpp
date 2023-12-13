@@ -68,6 +68,10 @@ bool SHA1::Result(unsigned *message_digest_array)
         PadMessage();
         Computed = true;
     }
+    if (message_digest_array == nullptr)
+    {
+        return false;
+    }
     for (i = 0; i < 5; i++)
     {
         message_digest_array[i] = H[i];
