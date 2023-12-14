@@ -54,6 +54,8 @@ public:
 
     void handle(const std::string &path, WebsocketHandler *handler);
 
+    void setReuseaddr(bool reuseaddr);
+
 private:
     void setServerAddr();
 

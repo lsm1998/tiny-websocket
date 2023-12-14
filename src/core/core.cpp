@@ -91,20 +91,12 @@ void TinyWebsocketServer::accept()
     {
         throw std::runtime_error("netSetBlock fail");
     }
-    this->eventHandler = createEventHandler();
+    this->eventHandler = createEventHandler(this->path , this->handler);
     this->eventHandler->create(this->fd);
     std::cout << "start http server on " << this->host << ":" << this->port << "..." << std::endl;
     while (this->loop)
     {
-        this->eventHandler->poll(this->fd, *this->handler);
-//        struct sockaddr_in client_addr{};
-//        socklen_t len = sizeof(client_addr);
-//        int client_fd = ::accept(this->fd, (struct sockaddr *) &client_addr, &len);
-//        if (client_fd < 0)
-//        {
-//            perror("fail to accept!");
-//            continue;
-//        }
+        this->eventHandler->poll(this->fd);
     }
 }
 
@@ -112,4 +104,9 @@ void TinyWebsocketServer::handle(const std::string &path, WebsocketHandler *hand
 {
     this->path = path;
     this->handler = handler;
+}
+
+void TinyWebsocketServer::setReuseaddr(bool reuseaddr)
+{
+    this->reuseaddr = reuseaddr;
 }

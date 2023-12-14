@@ -27,6 +27,8 @@ constexpr const char *SEPARATOR = "\r\n";
 
 constexpr const char *COLON = ":";
 
+class WebsocketConn;
+
 #ifdef __linux__
 #define LINUX 1
 #elif __APPLE__

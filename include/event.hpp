@@ -14,13 +14,13 @@ class EventHandler
 public:
     virtual void create(int fd) = 0;
 
-    virtual void poll(int fd, WebsocketHandler &handler) = 0;
+    virtual void poll(int fd) = 0;
 
     virtual void destroy() = 0;
 
     virtual ~EventHandler() = default;
 };
 
-extern EventHandler *createEventHandler();
+extern EventHandler *createEventHandler(const std::string& path, WebsocketHandler *handler);
 
 #endif //TINY_WEBSOCKET_EVENT_H

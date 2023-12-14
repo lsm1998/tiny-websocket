@@ -8,7 +8,7 @@
 class MyHandler : public WebsocketHandler
 {
 public:
-    void onAccept(const WebsocketConn &conn) override
+    void onAccept(const WebsocketRequest& request, const WebsocketConn &conn) override
     {
 
     }
@@ -28,10 +28,10 @@ public:
 
     }
 
-    ~MyHandler() override= default;
+    ~MyHandler() override = default;
 };
 
 void init(TinyWebsocketServer &server)
 {
-    server.handle("/ws",  new MyHandler());
+    server.handle("/ws", new MyHandler());
 }
