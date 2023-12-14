@@ -28,6 +28,10 @@ li {
 
 textarea {
     width: 70%;
-    height: 100px;
+    height: 300px;
     resize: none;
+    /**
+    美化文本框
+     */
+    border: 1px solid #ccc;
 }

@@ -9,6 +9,9 @@ let socket = null;
 // 设置按钮禁用
 sendBtn.disabled = true;
 
+// 设置文本框禁用
+message.disabled = true;
+
 const openSocket = function () {
     try {
         // 实例化WebSocket对象
