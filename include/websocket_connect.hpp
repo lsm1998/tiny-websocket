@@ -5,13 +5,14 @@
 #ifndef TINY_WEBSOCKET_WEBSOCKET_CONNECT_H
 #define TINY_WEBSOCKET_WEBSOCKET_CONNECT_H
 
-#include <netinet/in.h>
 #include "event.hpp"
 #include "global.hpp"
 #include "http_request.hpp"
 #include "http_response.hpp"
 #include "sha1.hpp"
 #include "base64.hpp"
+#include <netinet/in.h>
+#include <unistd.h>
 
 class WebsocketConn
 {
@@ -35,8 +36,6 @@ public:
     virtual std::string connId() = 0;
 
     virtual sockaddr_in remoteAddr() = 0;
-
-    virtual bool isHandshake() = 0;
 };
 
 class WebsocketConnect : public WebsocketConn
@@ -54,21 +53,8 @@ public:
 
     sockaddr_in remoteAddr() override;
 
-    bool isHandshake() override;
-
-private:
-    void checkHandshake();
-
-    bool handshake();
-
 private:
     int fd;
-
-    bool is_handshake{false};
-
-    std::string sec_websocket_key;
-
-    std::string sec_webSocket_extensions;
 
     std::string conn_id;
 

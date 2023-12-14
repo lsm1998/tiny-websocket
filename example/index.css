@@ -1,0 +1,33 @@
+button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 48px;
+    text-align: center;
+    margin: 10px;
+    /**
+    禁用状态设置灰色
+     */
+    &:disabled {
+        background-color: #cccccc;
+    }
+}
+
+.ul-list {
+    text-align: center;
+    align-content: center;
+    padding: 10px;
+}
+
+li {
+    /**
+    去除li前面的点
+     */
+    list-style-type: none;
+}
+
+textarea {
+    width: 70%;
+    height: 100px;
+    resize: none;
+}

@@ -17,7 +17,10 @@ class WebsocketRequest
 public:
     explicit WebsocketRequest(int fd);
 
-    bool handshake();
+    bool handshake(const std::string &path);
+
+private:
+    bool fail(int code, HttpResponse &response);
 
 private:
     int fd;

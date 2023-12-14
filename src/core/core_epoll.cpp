@@ -4,30 +4,41 @@
 
 #include "global.hpp"
 #include "core.hpp"
+#include "websocket_connect.hpp"
+#include "conn_ctx.hpp"
+#include "common_poll.hpp"
 
 #ifdef LINUX
 
-#include "websocket_connect.hpp"
 #include <sys/epoll.h>
 
-class EpollEventHandler : public EventHandler
+#include <utility>
+
+class EpollEventHandler : public EventHandler, public BaseEventHandler<EpollEventHandler>
 {
 public:
+    EpollEventHandler(std::string path, WebsocketHandler *handler)
+    {
+        this->path = std::move(path);
+        this->handler = handler;
+    }
+
     void create(int fd) override
     {
         this->socket_fd = fd;
-        this->epoll_fd = epoll_create(1);
+        this->poll_fd = epoll_create(1);
         epoll_event event{};
         event.events = EPOLLIN;
         event.data.fd = this->socket_fd;
         event.events |= EPOLLET; // 设置边缘触发
-        epoll_ctl(this->epoll_fd, EPOLL_CTL_ADD, fd, &event);
+        epoll_ctl(this->poll_fd, EPOLL_CTL_ADD, fd, &event);
     }
 
-    void poll(int fd, WebsocketHandler &handler) override
+    void poll(int fd) override
     {
-        memset(this->events, 0, sizeof(this->events));
-        int n = epoll_wait(this->epoll_fd, events, DEFAULT_EVENT_SIZE, -1);
+        epoll_event events[DEFAULT_EVENT_SIZE]{};
+        memset(events, 0, sizeof(events));
+        int n = epoll_wait(this->poll_fd, events, DEFAULT_EVENT_SIZE, -1);
         if (n == -1)
         {
             perror("epoll_wait error");
@@ -38,37 +49,21 @@ public:
             // 连接退出
             if ((events[i].events & EPOLLHUP) || (events[i].events & EPOLLERR) || (!(events[i].events & EPOLLIN)))
             {
-                this->connExit(&events[i], handler);
+                this->onExit(&events[i]);
                 continue;
             }
             if (events[i].data.fd == this->socket_fd)  // 连接加入
             {
-                struct sockaddr_in client_addr{};
-                socklen_t client;
-                int client_fd = accept(this->socket_fd, (struct sockaddr *) &client_addr, &client);
-                if (client_fd == -1)
-                {
-                    perror("accept error");
-                    continue;
-                }
-                connEnter(client_fd, handler);
-                continue;
+                this->connEnter();
             }
             if (events[i].events & EPOLLIN) // 是否可读
             {
-                auto iter = conn_map.find(events[i].data.fd);
-                if (iter != conn_map.end())
-                {
-                    handler.onRead(*iter->second);
-                }
+                this->onRead(&events[i]);
             }
             if (events[i].events & EPOLLOUT) // 是否可写
             {
-                auto iter = conn_map.find(events[i].data.fd);
-                if (iter != conn_map.end())
-                {
-                    handler.onWrite(*iter->second);
-                }
+
+                this->onWrite(events[i].data.fd);
             }
         }
     }
@@ -80,49 +75,60 @@ public:
 
     ~EpollEventHandler() override
     {
-        close(this->epoll_fd);
+        close(this->poll_fd);
     }
 
 private:
-    void connEnter(int fd, WebsocketHandler &handler)
+    void onExit(struct epoll_event *event)
+    {
+        this->connExit(event->data.fd);
+        epoll_ctl(this->poll_fd, EPOLL_CTL_DEL, event->data.fd, event);
+    }
+
+    void onRead(struct epoll_event *event)
+    {
+        int fd = event->data.fd;
+        auto item = this->conn_map.find(fd);
+        if (item == this->conn_map.end())
+        {
+            return;
+        }
+        if (item->second->isHandshake())
+        {
+            handler->onRead(*item->second->getConn());
+        } else
+        {
+            WebsocketRequest request(fd);
+            if (request.handshake(this->path))
+            {
+                std::cout << "握手失败" << std::endl;
+                onExit(event);
+                return;
+            }
+            handler->onAccept(request, *item->second->getConn());
+            item->second->handshake();
+        }
+    }
+
+    void onWrite(int fd)
+    {
+
+    }
+
+public:
+    void eventAdd(int fd) override
     {
         struct epoll_event ev{};
         netSetBlock(fd, true);
         ev.data.fd = fd;
         ev.events = EPOLLIN | EPOLLET;
-        epoll_ctl(this->epoll_fd, EPOLL_CTL_ADD, fd, &ev);
-        WebsocketConn *conn = new WebsocketConnect(fd);
-        conn_map.insert(std::pair<int, WebsocketConn *>(fd, conn));
-        handler.onAccept(*conn);
+        epoll_ctl(this->poll_fd, EPOLL_CTL_ADD, fd, &ev);
     }
-
-    void connExit(struct epoll_event *event, WebsocketHandler &handler)
-    {
-        int fd = event->data.fd;
-        auto iter = conn_map.find(fd);
-        if (iter != conn_map.end())
-        {
-            handler.onClose(*iter->second);
-            delete iter->second;
-            conn_map.erase(iter);
-        }
-        epoll_ctl(this->epoll_fd, EPOLL_CTL_DEL, fd, event);
-        close(fd);
-    }
-
-private:
-    int epoll_fd{};
-
-    int socket_fd{};
-
-    epoll_event events[DEFAULT_EVENT_SIZE]{};
-
-    std::map<int, WebsocketConn *> conn_map{};
 };
 
-EventHandler *createEventHandler()
+EventHandler *createEventHandler(const std::string &path, WebsocketHandler *handler)
 {
-    return new EpollEventHandler();
+    return new EpollEventHandler(path, handler);
 }
 
 #endif

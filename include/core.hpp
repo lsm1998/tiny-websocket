@@ -15,7 +15,7 @@
 #include "event.hpp"
 #include "websocket_handler.hpp"
 
-constexpr char *DEFAULT_HOST = (char *) "127.0.0.1";
+constexpr char *DEFAULT_HOST = (char *) "0.0.0.0";
 constexpr int DEFAULT_PORT = 8080;
 constexpr bool DEFAULT_BLOCK = true;
 constexpr int DEFAULT_BACKLOG = 1024;

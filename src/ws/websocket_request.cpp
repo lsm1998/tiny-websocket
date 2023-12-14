@@ -8,27 +8,17 @@ WebsocketRequest::WebsocketRequest(int fd) : fd(fd), request(fd)
 {
 }
 
-bool WebsocketRequest::handshake()
+bool WebsocketRequest::handshake(const std::string &path)
 {
-    if (!request.isInvalid())
+    HttpResponse response(this->fd);
+    if (!request.isInvalid() || request.getHeader("Connection") != "Upgrade" ||
+    request.getHeader("Upgrade") != "websocket" || request.getHeader("Sec-WebSocket-Version") != "13")
     {
-        return false;
+        return this->fail(400, response);
     }
-    if (request.method() != "GET")
+    if (request.method() != "GET" || request.path() != path)
     {
-        return false;
-    }
-    if (request.getHeader("Connection") != "Upgrade")
-    {
-        return false;
-    }
-    if (request.getHeader("Upgrade") != "websocket")
-    {
-        return false;
-    }
-    if (request.getHeader("Sec-WebSocket-Version") != "13")
-    {
-        return false;
+        return this->fail(404, response);
     }
     this->sec_websocket_key = request.getHeader("Sec-WebSocket-Key");
     if (this->sec_websocket_key.empty())
@@ -38,7 +28,6 @@ bool WebsocketRequest::handshake()
     this->sec_webSocket_extensions = request.getHeader("Sec-WebSocket-Extensions");
 
     // 握手响应
-    HttpResponse response(this->fd);
     response.setStatusCode(101);
     response.setHeader("Upgrade", "websocket");
     response.setHeader("Connection", "Upgrade");
@@ -49,4 +38,10 @@ bool WebsocketRequest::handshake()
     sha1.Result(nullptr);
     response.setHeader("Sec-WebSocket-Accept", base64_encode(sha1.GetDigestString()));
     return true;
+}
+
+bool WebsocketRequest::fail(int code, HttpResponse &response)
+{
+    response.setStatusCode(code);
+    return false;
 }
