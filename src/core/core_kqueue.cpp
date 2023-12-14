@@ -29,10 +29,11 @@ public:
     void poll(int fd, WebsocketHandler &handler) override
     {
         memset(this->events, 0, sizeof(this->events));
-        struct timespec timeout{};
-        timeout.tv_sec = -1;
-        timeout.tv_nsec = -1;
-        int n = kevent(this->kq_fd, nullptr, 0, this->events, DEFAULT_EVENT_SIZE, &timeout);
+//        struct timespec timeout{};
+//        timeout.tv_sec = 0;
+//        timeout.tv_nsec = 500 * 1000 *1000;  // 500 毫秒
+        int n = kevent(this->kq_fd, nullptr, 0, this->events, DEFAULT_EVENT_SIZE, nullptr);
+        std::cout << "poll一次" << std::endl;
         for (int i = 0; i < n; ++i)
         {
             int client_fd = (int) (intptr_t) events[i].udata;
