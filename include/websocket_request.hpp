@@ -15,12 +15,19 @@ constexpr char *WEBSOCKET_GUID = (char *) "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 class WebsocketRequest
 {
 public:
-    explicit WebsocketRequest(int fd);
+    explicit WebsocketRequest(int fd, const std::string &path);
 
-    bool handshake(const std::string &path);
+    bool isInvalid() const;
+
+    std::string getQuery(const std::string &key) const;
+
+    std::vector<std::string> getQueryArray(const std::string &key) const;
 
 private:
     bool fail(int code, HttpResponse &response);
+
+    bool handshake(const std::string &path);
+
 
 private:
     int fd;
@@ -30,6 +37,8 @@ private:
     std::string sec_websocket_key;
 
     std::string sec_webSocket_extensions;
+
+    bool is_invalid{true};
 };
 
 #endif //TINY_WEBSOCKET_WEBSOCKET_REQUEST_HPP

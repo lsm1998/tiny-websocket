@@ -4,17 +4,17 @@
 
 #include "websocket_connect.hpp"
 
-size_t WebsocketConnect::sendMessage(WebsocketConn::MessageType type, char *buf, size_t len)
+size_t WebsocketConnect::sendMessage(WebsocketConn::MessageType type, char *buf, size_t len) const
 {
     return write(this->fd, buf, len);
 }
 
-size_t WebsocketConnect::recvMessage(WebsocketConn::MessageType type, char *buf, size_t len)
+size_t WebsocketConnect::recvMessage(WebsocketConn::MessageType type, char *buf, size_t len) const
 {
     return read(this->fd, buf, len);
 }
 
-std::string WebsocketConnect::connId()
+std::string WebsocketConnect::connId() const
 {
     return this->conn_id;
 }
@@ -32,7 +32,17 @@ WebsocketConnect::WebsocketConnect(int fd, struct sockaddr_in client_addr)
     this->conn_id = sha1.GetDigestString();
 }
 
-sockaddr_in WebsocketConnect::remoteAddr()
+sockaddr_in WebsocketConnect::remoteAddr() const
 {
     return this->client_addr;
+}
+
+void WebsocketConn::setContext(const std::string &key, const std::string &value) const
+{
+    this->context_map.insert({key, value});
+}
+
+std::string WebsocketConn::getContext(const std::string &key) const
+{
+    return context_map.at(key);
 }

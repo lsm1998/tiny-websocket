@@ -27,31 +27,38 @@ public:
     };
 
 public:
-    virtual size_t sendMessage(MessageType type, char *buf, size_t len) = 0;
+    virtual size_t sendMessage(MessageType type, char *buf, size_t len) const = 0;
 
-    virtual size_t recvMessage(MessageType type, char *buf, size_t len) = 0;
+    virtual size_t recvMessage(MessageType type, char *buf, size_t len) const = 0;
 
     virtual ~WebsocketConn() = default;
 
-    virtual std::string connId() = 0;
+    virtual std::string connId() const = 0;
 
-    virtual sockaddr_in remoteAddr() = 0;
+    virtual sockaddr_in remoteAddr() const = 0;
+
+    virtual void setContext(const std::string &key, const std::string &value) const;
+
+    virtual std::string getContext(const std::string &key) const;
+
+private:
+    mutable std::map<std::string, std::string> context_map{};
 };
 
 class WebsocketConnect : public WebsocketConn
 {
 public:
-    explicit WebsocketConnect(int socket_fd,struct sockaddr_in client_addr);
+    explicit WebsocketConnect(int socket_fd, struct sockaddr_in client_addr);
 
     ~WebsocketConnect() override = default;
 
-    size_t sendMessage(MessageType type, char *buf, size_t len) override;
+    size_t sendMessage(MessageType type, char *buf, size_t len) const override;
 
-    size_t recvMessage(MessageType type, char *buf, size_t len) override;
+    size_t recvMessage(MessageType type, char *buf, size_t len) const override;
 
-    std::string connId() override;
+    std::string connId() const override;
 
-    sockaddr_in remoteAddr() override;
+    sockaddr_in remoteAddr() const override;
 
 private:
     int fd;

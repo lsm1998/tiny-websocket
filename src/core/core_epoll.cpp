@@ -14,7 +14,7 @@
 
 #include <utility>
 
-class EpollEventHandler : public EventHandler, public BaseEventHandler<EpollEventHandler>
+class EpollEventHandler : public EventHandler, public BaseEventHandler
 {
 public:
     EpollEventHandler(std::string path, WebsocketHandler *handler)

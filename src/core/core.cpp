@@ -87,10 +87,12 @@ void TinyWebsocketServer::listen() const
 
 void TinyWebsocketServer::accept()
 {
-    if (netSetBlock(this->fd, this->block ? 0 : 1) < 0)
-    {
-        throw std::runtime_error("netSetBlock fail");
-    }
+//    if (netSetBlock(this->fd, this->block ? 0 : 1) < 0)
+//    {
+//        throw std::runtime_error("netSetBlock fail");
+//    }
+    netSetBlock(this->fd, true);
+
     this->eventHandler = createEventHandler(this->path , this->handler);
     this->eventHandler->create(this->fd);
     std::cout << "start http server on " << this->host << ":" << this->port << "..." << std::endl;
