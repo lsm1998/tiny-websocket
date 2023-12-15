@@ -3,16 +3,7 @@
 //
 
 #include "websocket_connect.hpp"
-
-size_t WebsocketConnect::sendMessage(WebsocketConn::MessageType type, char *buf, size_t len) const
-{
-    return write(this->fd, buf, len);
-}
-
-size_t WebsocketConnect::recvMessage(WebsocketConn::MessageType type, char *buf, size_t len) const
-{
-    return read(this->fd, buf, len);
-}
+#include "websocket_message_frame.hpp"
 
 std::string WebsocketConnect::connId() const
 {
@@ -39,7 +30,22 @@ sockaddr_in WebsocketConnect::remoteAddr() const
 
 WebsocketConnect::~WebsocketConnect()
 {
-    close(fd);
+    this->close();
+}
+
+void WebsocketConnect::close() const
+{
+    ::close(this->fd);
+}
+
+size_t WebsocketConnect::sendMessage(WebsocketMessage &message) const
+{
+    return WebsocketMessageWapper::write(this->fd, message);
+}
+
+WebsocketMessage&& WebsocketConnect::recvMessage() const
+{
+    return WebsocketMessageWapper::read(this->fd);
 }
 
 void WebsocketConn::setContext(const std::string &key, const std::string &value) const

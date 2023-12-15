@@ -29,6 +29,22 @@ constexpr const char *COLON = ":";
 
 class WebsocketConn;
 
+class WebsocketHandler;
+
+class WebsocketRequest;
+
+class WebsocketConnect;
+
+class HttpRequest;
+
+class EventHandler;
+
+class WebsocketMessage;
+
+class WebsocketMessageFrame;
+
+class WebsocketMessageWapper;
+
 #ifdef __linux__
 #define LINUX 1
 #elif __APPLE__

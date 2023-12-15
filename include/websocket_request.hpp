@@ -23,6 +23,8 @@ public:
 
     std::vector<std::string> getQueryArray(const std::string &key) const;
 
+    std::string param(const std::string& key) const;
+
 private:
     bool fail(int code, HttpResponse &response);
 

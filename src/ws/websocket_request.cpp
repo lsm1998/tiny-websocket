@@ -46,7 +46,8 @@ bool WebsocketRequest::handshake(const std::string &path)
     {
         i = htonl(i);
     }
-    response.setHeader("Sec-WebSocket-Accept", base64_encode(reinterpret_cast<const unsigned char *>(message_digest), 20));
+    response.setHeader("Sec-WebSocket-Accept",
+                       base64_encode(reinterpret_cast<const unsigned char *>(message_digest), 20));
     return true;
 }
 
@@ -74,4 +75,9 @@ std::string WebsocketRequest::getQuery(const std::string &key) const
         return "";
     }
     return list.at(0);
+}
+
+std::string WebsocketRequest::param(const std::string &key) const
+{
+    return this->request.param(key);
 }

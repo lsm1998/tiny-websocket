@@ -14,22 +14,21 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+enum MessageType
+{
+    TEXT = 1,
+    BINARY = 2,
+    CLOSE = 8,
+    PING = 9,
+    PONG = 10
+};
+
 class WebsocketConn
 {
 public:
-    enum MessageType
-    {
-        TEXT = 1,
-        BINARY = 2,
-        CLOSE = 8,
-        PING = 9,
-        PONG = 10
-    };
+    virtual size_t sendMessage(WebsocketMessage &message) const = 0;
 
-public:
-    virtual size_t sendMessage(MessageType type, char *buf, size_t len) const = 0;
-
-    virtual size_t recvMessage(MessageType type, char *buf, size_t len) const = 0;
+    virtual WebsocketMessage &&recvMessage() const = 0;
 
     virtual ~WebsocketConn() = default;
 
@@ -40,6 +39,8 @@ public:
     virtual void setContext(const std::string &key, const std::string &value) const;
 
     virtual std::string getContext(const std::string &key) const;
+
+    virtual void close() const = 0;
 
 private:
     mutable std::map<std::string, std::string> context_map{};
@@ -52,13 +53,15 @@ public:
 
     ~WebsocketConnect() override;
 
-    size_t sendMessage(MessageType type, char *buf, size_t len) const override;
+    size_t sendMessage(WebsocketMessage &message) const override;
 
-    size_t recvMessage(MessageType type, char *buf, size_t len) const override;
+    WebsocketMessage &&recvMessage() const override;
 
     std::string connId() const override;
 
     sockaddr_in remoteAddr() const override;
+
+    void close() const override;
 
 private:
     int fd;
