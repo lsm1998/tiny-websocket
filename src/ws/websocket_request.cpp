@@ -2,6 +2,7 @@
 // Created by Administrator on 2023/12/13.
 //
 
+#include <netinet/in.h>
 #include "websocket_request.hpp"
 
 WebsocketRequest::WebsocketRequest(int fd, const std::string &path) : fd(fd), request(fd)
@@ -33,11 +34,19 @@ bool WebsocketRequest::handshake(const std::string &path)
     response.setHeader("Upgrade", "websocket");
     response.setHeader("Connection", "Upgrade");
 
-    SHA1 sha1;
-    sha1 << this->sec_websocket_key.data();
-    sha1 << WEBSOCKET_GUID;
-    sha1.Result(nullptr);
-    response.setHeader("Sec-WebSocket-Accept", base64_encode(sha1.GetDigestString()));
+    SHA1 sha;
+    unsigned int message_digest[5];
+    sha.Reset();
+
+    sha << this->sec_websocket_key.data();
+    sha << WEBSOCKET_GUID;
+
+    sha.Result(message_digest);
+    for (unsigned int &i: message_digest)
+    {
+        i = htonl(i);
+    }
+    response.setHeader("Sec-WebSocket-Accept", base64_encode(reinterpret_cast<const unsigned char *>(message_digest), 20));
     return true;
 }
 

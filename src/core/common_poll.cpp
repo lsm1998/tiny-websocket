@@ -13,7 +13,6 @@ void BaseEventHandler::connExit(int fd)
         delete iter->second;
         conn_map.extract(fd);
     }
-    close(fd);
 }
 
 int BaseEventHandler::connEnter()

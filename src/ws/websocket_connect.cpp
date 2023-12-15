@@ -37,6 +37,11 @@ sockaddr_in WebsocketConnect::remoteAddr() const
     return this->client_addr;
 }
 
+WebsocketConnect::~WebsocketConnect()
+{
+    close(fd);
+}
+
 void WebsocketConn::setContext(const std::string &key, const std::string &value) const
 {
     this->context_map.insert({key, value});
@@ -44,5 +49,10 @@ void WebsocketConn::setContext(const std::string &key, const std::string &value)
 
 std::string WebsocketConn::getContext(const std::string &key) const
 {
-    return context_map.at(key);
+    auto iter = this->context_map.find(key);
+    if (iter == this->context_map.end())
+    {
+        return "";
+    }
+    return iter->second;
 }

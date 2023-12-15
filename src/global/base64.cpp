@@ -14,32 +14,48 @@ static inline bool is_base64(unsigned char c)
     return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
+std::string base64_encode(unsigned char const *bytes_to_encode, unsigned int in_len)
+{
+    std::string ret;
+    int i = 0;
+    int j = 0;
+    unsigned char char_array_3[3];
+    unsigned char char_array_4[4];
+
+    while (in_len--)
+    {
+        char_array_3[i++] = *(bytes_to_encode++);
+        if (i == 3)
+        {
+            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+            char_array_4[3] = char_array_3[2] & 0x3f;
+
+            for (i = 0; (i < 4); i++)
+                ret += base64_chars[char_array_4[i]];
+            i = 0;
+        }
+    }
+    if (i)
+    {
+        for (j = i; j < 3; j++)
+            char_array_3[j] = '\0';
+        char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+        char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+        char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+        char_array_4[3] = char_array_3[2] & 0x3f;
+        for (j = 0; (j < i + 1); j++)
+            ret += base64_chars[char_array_4[j]];
+        while ((i++ < 3))
+            ret += '=';
+    }
+    return ret;
+}
+
 std::string base64_encode(const std::string &input)
 {
-    // 输入数据的指针
-    const auto *bytes_to_encode = reinterpret_cast<const unsigned char *>(input.c_str());
-    // 输入数据的长度
-    size_t in_len = input.length();
-
-    // 存储编码后的结果
-    std::string encoded;
-
-    // 对输入数据进行编码
-    for (size_t i = 0; i < in_len; i += 3)
-    {
-        // 取三个字节
-        uint32_t three_bytes = static_cast<uint32_t>(bytes_to_encode[i]) << 16;
-        if (i + 1 < in_len) three_bytes |= static_cast<uint32_t>(bytes_to_encode[i + 1]) << 8;
-        if (i + 2 < in_len) three_bytes |= bytes_to_encode[i + 2];
-
-        // 将三个字节拆分为四个6位组，并转换为Base64字符
-        encoded += base64_chars[(three_bytes >> 18) & 0x3F];
-        encoded += base64_chars[(three_bytes >> 12) & 0x3F];
-        encoded += (i + 1 < in_len) ? base64_chars[(three_bytes >> 6) & 0x3F] : '=';
-        encoded += (i + 2 < in_len) ? base64_chars[three_bytes & 0x3F] : '=';
-    }
-
-    return encoded;
+    return base64_encode(reinterpret_cast<const unsigned char *>(input.c_str()), static_cast<unsigned int>(input.size()));
 }
 
 std::string base64_decode(const std::string &input)

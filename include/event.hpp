@@ -12,7 +12,7 @@ constexpr int DEFAULT_EVENT_SIZE = 1024;
 class EventHandler
 {
 public:
-    virtual void create(int fd) = 0;
+    virtual int create(int fd) = 0;
 
     virtual void poll(int fd) = 0;
 

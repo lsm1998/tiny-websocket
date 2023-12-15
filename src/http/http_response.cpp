@@ -29,6 +29,7 @@ void HttpResponse::done() const
     // 先写响应头
     this->writeRespHeader();
 
+    // websocket协议不需要写响应体
     // 写响应体
     this->writeRespBody();
 }

@@ -3,18 +3,14 @@
 //
 
 #include "global.hpp"
-#include "core.hpp"
 #include "websocket_connect.hpp"
-#include "conn_ctx.hpp"
 #include "common_poll.hpp"
 
 #ifdef LINUX
 
 #include <sys/epoll.h>
 
-#include <utility>
-
-class EpollEventHandler : public EventHandler, public BaseEventHandler
+class EpollEventHandler : public BaseEventHandler
 {
 public:
     EpollEventHandler(std::string path, WebsocketHandler *handler)
@@ -23,7 +19,7 @@ public:
         this->handler = handler;
     }
 
-    void create(int fd) override
+    int create(int fd) override
     {
         this->socket_fd = fd;
         this->poll_fd = epoll_create(1);
@@ -31,7 +27,7 @@ public:
         event.events = EPOLLIN;
         event.data.fd = this->socket_fd;
         event.events |= EPOLLET; // 设置边缘触发
-        epoll_ctl(this->poll_fd, EPOLL_CTL_ADD, fd, &event);
+        return epoll_ctl(this->poll_fd, EPOLL_CTL_ADD, fd, &event);
     }
 
     void poll(int fd) override
@@ -55,6 +51,7 @@ public:
             if (events[i].data.fd == this->socket_fd)  // 连接加入
             {
                 this->connEnter();
+                continue;
             }
             if (events[i].events & EPOLLIN) // 是否可读
             {
@@ -62,7 +59,6 @@ public:
             }
             if (events[i].events & EPOLLOUT) // 是否可写
             {
-
                 this->onWrite(events[i].data.fd);
             }
         }
@@ -93,13 +89,14 @@ private:
         {
             return;
         }
+
         if (item->second->isHandshake())
         {
             handler->onRead(*item->second->getConn());
         } else
         {
-            WebsocketRequest request(fd);
-            if (request.handshake(this->path))
+            WebsocketRequest request(fd, this->path);
+            if (request.isInvalid())
             {
                 std::cout << "握手失败" << std::endl;
                 onExit(event);
@@ -122,7 +119,10 @@ public:
         netSetBlock(fd, true);
         ev.data.fd = fd;
         ev.events = EPOLLIN | EPOLLET;
-        epoll_ctl(this->poll_fd, EPOLL_CTL_ADD, fd, &ev);
+        if (epoll_ctl(this->poll_fd, EPOLL_CTL_ADD, fd, &ev) < 0)
+        {
+            perror("epoll_ctl error");
+        }
     }
 };
 

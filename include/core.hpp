@@ -32,20 +32,14 @@ public:
             TinyWebsocketServer(std::move(host), port, DEFAULT_BLOCK)
     {}
 
-    explicit TinyWebsocketServer(std::string host, int port, bool block)
-            : TinyWebsocketServer(std::move(host), port, block, DEFAULT_BACKLOG)
-    {}
-
-    explicit TinyWebsocketServer(std::string host, int port, bool block, int backlog)
-            : host(std::move(host)), port(port), block(block), backlog(backlog)
+    explicit TinyWebsocketServer(std::string host, int port, int backlog)
+            : host(std::move(host)), port(port), backlog(backlog)
     {
     }
 
     ~TinyWebsocketServer();
 
 public:
-    void setBlock(bool block);
-
     void setHost(const std::string &host);
 
     void setPort(int port);
@@ -68,7 +62,6 @@ private:
 private:
     std::string host;
     int port;
-    bool block;
     int backlog;
     bool reuseaddr;
     int fd;

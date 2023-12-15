@@ -50,7 +50,7 @@ class WebsocketConnect : public WebsocketConn
 public:
     explicit WebsocketConnect(int socket_fd, struct sockaddr_in client_addr);
 
-    ~WebsocketConnect() override = default;
+    ~WebsocketConnect() override;
 
     size_t sendMessage(MessageType type, char *buf, size_t len) const override;
 

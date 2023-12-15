@@ -9,7 +9,6 @@ void init(TinyWebsocketServer &server);
 int main(int argc, char **argv)
 {
     TinyWebsocketServer server;
-    server.setBlock(false);
     server.setReuseaddr(true);
     if (argc > 1)
     {
