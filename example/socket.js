@@ -61,7 +61,6 @@ connectBtn.onclick = function () {
 };
 
 sendBtn.onclick = function () {
-    // message.value = ''
     if (send_data.value === "") {
         alert("请输入要发送的消息");
         return;
@@ -69,6 +68,7 @@ sendBtn.onclick = function () {
     if (socket.readyState === WebSocket.OPEN) {
         socket.send(send_data.value);
         message.append("发送消息:" + send_data.value + "\n");
+        send_data.value = ''
     } else {
         message.append("WebSocket连接没有建立成功\n");
     }
