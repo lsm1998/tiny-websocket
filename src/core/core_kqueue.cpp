@@ -24,7 +24,7 @@ public:
         this->handler = handler;
     }
 
-    void create(int fd) override
+    int create(int fd) override
     {
         this->socket_fd = fd;
         if ((this->poll_fd = kqueue()) == -1)
@@ -32,7 +32,7 @@ public:
             perror("kqueue");
             exit(EXIT_FAILURE);
         }
-        updateEvents(this->socket_fd, kReadEvent, false);
+        return updateEvents(this->socket_fd, kReadEvent, false);
     }
 
     void poll(int fd) override
