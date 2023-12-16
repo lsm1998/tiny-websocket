@@ -60,8 +60,6 @@ public:
         std::cout << "消息内容：" << message.getData() << std::endl;
 
         WebsocketMessage sendMessage;
-        sendMessage.messageType = MessageType::TEXT;
-
         std::string reply = "reply " + std::string(message.getData());
         sendMessage.setData(reply.data(), (int64_t) reply.size());
         this->broadcast(sendMessage);
@@ -87,7 +85,6 @@ private:
         if (iter != connMap.end())
         {
             WebsocketMessage sendMessage;
-            sendMessage.messageType = MessageType::TEXT;
             std::string reply = "name已经被其他客户端占有，请更换name后重新连接";
             sendMessage.setData(reply.data(), (int64_t) reply.size());
             conn.sendMessage(sendMessage);
