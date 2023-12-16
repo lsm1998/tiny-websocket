@@ -125,9 +125,9 @@ private:
                 onExit(client_fd);
                 return;
             }
-            handler->onAccept(request, *item->second->getConn());
             item->second->handshake();
             std::cout << "握手完成" << std::endl;
+            handler->onAccept(request, *item->second->getConn());
         }
     }
 
