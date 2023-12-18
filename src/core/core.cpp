@@ -100,6 +100,10 @@ void TinyWebsocketServer::handle(const std::string &path, WebsocketHandler *hand
 {
     this->path = path;
     this->handler = handler;
+    if (!path.empty() && path[0] != '/')
+    {
+        this->path = '/' + path;
+    }
 }
 
 void TinyWebsocketServer::setReuseaddr(bool reuseaddr)
