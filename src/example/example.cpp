@@ -35,9 +35,16 @@ public:
 
     void onAccept(const WebsocketRequest &request, const WebsocketConn &conn) override
     {
-        std::cout << "客户端：" << request.getQuery("name") << "加入啦" << std::endl;
-        conn.setContext("name", request.getQuery("name"));
+        auto name = request.getQuery("name");
+        if (!this->tyrInsert(name, conn))
+        {
+            std::cout << "客户端：" << name << "已经存在" << std::endl;
+            return;
+        }
+        std::cout << "客户端：" << name << "加入啦" << std::endl;
+        conn.setContext("name", name);
         // request.param("");
+        conn_map.insert({name, conn});
     }
 
     void onRead(const WebsocketConn &conn) override
@@ -57,7 +64,8 @@ public:
 
         std::string reply = "reply " + std::string(message.getData());
         sendMessage.setData(reply.data(), (int64_t) reply.size());
-        conn.sendMessage(sendMessage);
+        // conn.sendMessage(sendMessage);
+        broadcast(sendMessage);
     }
 
     void onWrite(const WebsocketConn &conn) override
@@ -70,6 +78,35 @@ public:
     }
 
     ~MyHandler() override = default;
+
+private:
+    bool tyrInsert(const std::string &name, const WebsocketConn &conn)
+    {
+        auto it = conn_map.find(name);
+        if (it == conn_map.end())
+        {
+            conn_map.insert({name, conn});
+            return true;
+        }
+        WebsocketMessage sendMessage;
+        sendMessage.messageType = MessageType::TEXT;
+        std::string reply = "名称已经存在";
+        sendMessage.setData(reply.data(), (int64_t) reply.size());
+        conn.sendMessage(sendMessage);
+        conn.close();
+        return false;
+    }
+
+    void broadcast(WebsocketMessage &message)
+    {
+        for (auto &it: conn_map)
+        {
+            it.second.sendMessage(message);
+        }
+    }
+
+private:
+    std::map<std::string, const WebsocketConn &> conn_map{};
 };
 
 void init(TinyWebsocketServer &server)
