@@ -3,6 +3,7 @@ const connectBtn = document.getElementById("connect");
 const message = document.getElementById("message");
 const ws_url = document.getElementById("ws_url");
 const send_data = document.getElementById("send_data");
+const clearBtn = document.getElementById("clear");
 
 let socket = null;
 
@@ -13,7 +14,7 @@ sendBtn.disabled = true;
 message.disabled = true;
 
 // 默认值
-ws_url.value = "ws://127.0.0.1:8080/ws?name=lsm"
+ws_url.value = "ws://127.0.0.1:8080/ws?name=lsm";
 
 const openSocket = function () {
     try {
@@ -57,7 +58,7 @@ connectBtn.onclick = function () {
         return;
     }
     openSocket();
-}
+};
 
 sendBtn.onclick = function () {
     if (send_data.value === "") {
@@ -67,7 +68,12 @@ sendBtn.onclick = function () {
     if (socket.readyState === WebSocket.OPEN) {
         socket.send(send_data.value);
         message.append("发送消息:" + send_data.value + "\n");
+        send_data.value = ''
     } else {
         message.append("WebSocket连接没有建立成功\n");
     }
+};
+
+clearBtn.onclick = () => {
+    message.innerText = ''
 };

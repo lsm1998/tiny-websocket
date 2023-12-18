@@ -27,7 +27,7 @@ public:
     [[nodiscard]] bool isClosed() const;
 
 public:
-    MessageType messageType;
+    MessageType messageType{MessageType::TEXT};
 
 private:
     int fd{};

@@ -102,8 +102,8 @@ private:
                 onExit(event);
                 return;
             }
-            handler->onAccept(request, *item->second->getConn());
             item->second->handshake();
+            handler->onAccept(request, *item->second->getConn());
         }
     }
 
