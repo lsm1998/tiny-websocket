@@ -15,7 +15,6 @@ WebsocketMessage::WebsocketMessage(int fd) : fd(fd)
         return;
     }
     this->length = frame.length();
-    this->data = new char[this->length];
     frame.readPayload();
     if (frame.invalid())
     {

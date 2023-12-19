@@ -56,11 +56,15 @@ public:
             return;
         }
         std::cout << "收到消息来自：" << conn.getContext("name") << "的消息" << std::endl;
+
+        auto data = message.getData();
+        data[message.getLength()] = '\0';
+
         std::cout << "消息长度：" << message.getLength() << std::endl;
-        std::cout << "消息内容：" << message.getData() << std::endl;
+        std::cout << "消息内容：" << data << std::endl;
 
         WebsocketMessage sendMessage;
-        std::string reply = "reply " + std::string(message.getData());
+        std::string reply = "reply " + std::string(data);
         sendMessage.setData(reply.data(), (int64_t) reply.size());
         this->broadcast(sendMessage);
     }

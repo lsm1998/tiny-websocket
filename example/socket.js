@@ -14,7 +14,7 @@ sendBtn.disabled = true;
 message.disabled = true;
 
 // 默认值
-ws_url.value = "ws://127.0.0.1:8080/ws?name=lsm";
+ws_url.value = "ws://172.24.183.82:8080/ws?name=lsm";
 
 const openSocket = function () {
     try {

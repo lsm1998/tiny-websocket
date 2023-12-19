@@ -103,10 +103,15 @@ void WebsocketMessageFrame::readHeader()
 
 void WebsocketMessageFrame::readPayload()
 {
-    this->message->data = new char[this->payload_length];
-    if (read(this->message->fd, this->message->data, this->length()) != this->length())
+    this->message->data = new char[this->payload_length + 1];
+
+    size_t read_len = read(this->message->fd, this->message->data, this->length() + 1);
+    if (read_len != this->length())
     {
+        // 读到的数据长度不对
         this->is_invalid = true;
+        std::cout << "读到的数据长度不对，期望长度：" << this->length() << "，实际长度：" << read_len << "，数据："
+                  << this->message->data << std::endl;
         return;
     }
     if (this->mask() == 1)
