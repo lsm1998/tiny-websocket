@@ -51,22 +51,18 @@ public:
         auto message = conn.recvMessage();
         if (message.isClosed())
         {
-            std::cout << "客户端：" << conn.getContext("name") << "下线！" << std::endl;
             this->onClose(conn);
             return;
         }
-        std::cout << "收到消息来自：" << conn.getContext("name") << "的消息" << std::endl;
-
-        auto data = message.getData();
-        data[message.getLength()] = '\0';
-
+        auto name = conn.getContext("name");
+        std::cout << "收到消息来自：" << name << "的消息" << std::endl;
         std::cout << "消息长度：" << message.getLength() << std::endl;
-        std::cout << "消息内容：" << data << std::endl;
+        std::cout << "消息内容：" << message.getData() << std::endl;
 
         WebsocketMessage sendMessage;
-        std::string reply = "reply " + std::string(data);
+        std::string reply = name + "说： " + std::string(message.getData());
         sendMessage.setData(reply.data(), (int64_t) reply.size());
-        this->broadcast(sendMessage);
+        this->broadcast(sendMessage, name);
     }
 
     void onWrite(const WebsocketConn &conn) override
@@ -98,10 +94,14 @@ private:
         return false;
     }
 
-    void broadcast(WebsocketMessage &message)
+    void broadcast(WebsocketMessage &message, const std::string &sender)
     {
         for (const auto &item: this->connMap)
         {
+            if (item.second.getContext("name") == sender) // 不需要给自己发
+            {
+                continue;
+            }
             item.second.sendMessage(message);
         }
     }

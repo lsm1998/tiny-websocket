@@ -20,3 +20,17 @@ cmake .
 make
 ````
 ![cmake编译.png](doc/cmake编译.png)
+
+### 运行效果
+
+#### 在线网站测试 reply消息
+
+网址：http://www.jsons.cn/websocket/
+
+![在线网站测试.png](doc/在线网站测试.png)
+
+#### 使用example目录的html文件测试群聊
+
+![群聊.png](doc/群聊.png)
+
+

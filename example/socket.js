@@ -14,7 +14,7 @@ sendBtn.disabled = true;
 message.disabled = true;
 
 // 默认值
-ws_url.value = "ws://172.24.183.82:8080/ws?name=lsm";
+ws_url.value = "ws://127.0.0.1:8080/ws?name=lsm";
 
 const openSocket = function () {
     try {
@@ -45,7 +45,7 @@ const openSocket = function () {
         message.append("WebSocket意外断开\n");
     };
     socket.onmessage = function (event) {
-        message.append("收到消息:" + event.data + "\n");
+        message.append("【收到消息】:" + event.data + "\n");
     };
 };
 
@@ -67,7 +67,7 @@ sendBtn.onclick = function () {
     }
     if (socket.readyState === WebSocket.OPEN) {
         socket.send(send_data.value);
-        message.append("发送消息:" + send_data.value + "\n");
+        message.append("【发送消息】:" + send_data.value + "\n");
         send_data.value = ''
     } else {
         message.append("WebSocket连接没有建立成功\n");

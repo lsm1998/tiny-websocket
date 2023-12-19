@@ -121,6 +121,7 @@ void WebsocketMessageFrame::readPayload()
             this->message->data[i] ^= this->masking_key_[i % 4];
         }
     }
+    this->message->data[this->length()] = '\0';
     this->is_invalid = false;
 }
 
